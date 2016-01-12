@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.virtual.refpub.model.Codelist;
 import org.virtualrepository.AssetType;
 import org.virtualrepository.csv.CsvCodelist;
+import org.virtualrepository.sdmx.SdmxCodelist;
 import org.virtualrepository.spi.Browser;
 import org.virtualrepository.spi.MutableAsset;
 
@@ -33,6 +34,9 @@ public class RefPubBrowser implements Browser {
 		if(types.contains(CsvCodelist.type))
 			return toCsvAssets(codelists);
 		
+		if (types.contains((SdmxCodelist.type)))
+			return toSdmxAssets(codelists);
+		
 		throw new IllegalArgumentException("unsupported types "+types);
 	}
 		
@@ -43,6 +47,17 @@ public class RefPubBrowser implements Browser {
 		
 		for (Codelist codelist : codelists)
 			assets.add(codelist.toCsvAsset());
+		
+		return assets;
+	}
+	
+	private List<SdmxCodelist> toSdmxAssets(Iterable<Codelist> codelists) {
+		log.info(" discovering {}",SdmxCodelist.type);
+
+		List<SdmxCodelist> assets = new ArrayList<SdmxCodelist>();
+		
+		for (Codelist codelist : codelists)
+			assets.add(codelist.toSdmxAsset());
 		
 		return assets;
 	}

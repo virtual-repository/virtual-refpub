@@ -10,6 +10,7 @@ import java.util.Collection;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.sdmxsource.sdmx.api.manager.output.StructureWriterManager;
 import org.virtual.refpub.dependencies.DependencyProvider;
 import org.virtualrepository.Property;
 import org.virtualrepository.RepositoryService;
@@ -42,6 +43,7 @@ public class RefPubPlugin implements Plugin {
 	
 	@Inject RefPubProxy proxy;
 	@Inject Configuration configuration;
+	@Inject StructureWriterManager m;	
 	
 	@Override
 	public Collection<RepositoryService> services() {

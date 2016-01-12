@@ -30,6 +30,7 @@ public class RefPubProxy implements ServiceProxy, Lifecycle {
 	@Inject Configuration configuration;
 	@Inject RefPubBrowser browser;
 	@Inject CsvImporter csvImporter;
+	@Inject SdmxImporter sdmxImporter;
 	
 	private final List<Publisher<?,?>> publishers = new ArrayList<Publisher<?,?>>();
 	private final List<Importer<?,?>> importers = new ArrayList<Importer<?,?>>();
@@ -39,6 +40,8 @@ public class RefPubProxy implements ServiceProxy, Lifecycle {
 		log.info("connecting to RefPub @ {}", configuration.endpoint());
 
 		importers.add(csvImporter);
+		importers.add(sdmxImporter);
+		
 		importers.add(adapt(csvImporter, new Table2CsvStream<CsvCodelist>()));
 	}
 	

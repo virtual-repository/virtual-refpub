@@ -5,8 +5,10 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.virtual.refpub.test.Utils.inject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +19,12 @@ import javax.inject.Inject;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sdmxsource.sdmx.api.constants.STRUCTURE_OUTPUT_FORMAT;
+import org.sdmxsource.sdmx.api.manager.output.StructureWriterManager;
+import org.sdmxsource.sdmx.api.model.beans.SdmxBeans;
+import org.sdmxsource.sdmx.api.model.beans.codelist.CodelistBean;
+import org.sdmxsource.sdmx.sdmxbeans.model.SdmxStructureFormat;
+import org.sdmxsource.sdmx.util.beans.container.SdmxBeansImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.virtual.refpub.BaseImporter;
@@ -45,11 +53,21 @@ public class IntegrationTests {
 	@Inject RefPubProxy proxy;
 	@Inject BaseImporter importer;
 	
+	@Inject StructureWriterManager manager;
+	
 	@BeforeClass
 	public static void setup() {
 		setProperty("org.slf4j.simpleLogger.defaultLogLevel", "trace");
 		setProperty("org.slf4j.simpleLogger.log.org.springframework", "warn");
 		log = LoggerFactory.getLogger("test");
+	}
+	
+	@Test
+	public void browseSdmxCodelists() throws Exception {
+		inject(this);
+
+		for (Asset list : browser.discover(Arrays.asList(SdmxCodelist.type)))
+			log.info(list.toString());
 	}
 
 	@Test
@@ -70,6 +88,16 @@ public class IntegrationTests {
 
 		repo.discover(CsvCodelist.type);
 
+		for (Asset asset : repo)
+			log.debug(asset.toString());
+	}
+	
+	@Test
+	public void discoverSdmxCodelists() {
+		VirtualRepository repo = new Repository();
+	
+		repo.discover(SdmxCodelist.type);
+	
 		for (Asset asset : repo)
 			log.debug(asset.toString());
 	}
@@ -134,6 +162,30 @@ public class IntegrationTests {
 		
 		for (Row row : table)
 			log.debug(row.toString());
+	}
+	
+	@Test
+	public void retrieveFirstCodelistAsSdmx() throws Exception {
+		inject(this);
+		
+		VirtualRepository repo = new Repository();
+
+		repo.discover(SdmxCodelist.type);
+		
+		Iterator<Asset> iterator = repo.iterator();
+		iterator.next();
+
+		CodelistBean bean = repo.retrieve(iterator.next(), CodelistBean.class);
+		
+		SdmxBeans beans = new SdmxBeansImpl(bean);
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
+		
+		STRUCTURE_OUTPUT_FORMAT format = STRUCTURE_OUTPUT_FORMAT.SDMX_V21_STRUCTURE_DOCUMENT;
+		
+		manager.writeStructures(beans, new SdmxStructureFormat(format), stream);
+		
+		log.info(stream.toString());
 	}
 	
 	@Test

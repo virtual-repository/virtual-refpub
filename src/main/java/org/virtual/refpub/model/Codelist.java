@@ -3,12 +3,13 @@
  */
 package org.virtual.refpub.model;
 
+import static org.virtualrepository.Utils.notNull;
+
 import org.virtualrepository.Asset;
 import org.virtualrepository.Properties;
 import org.virtualrepository.Property;
 import org.virtualrepository.csv.CsvCodelist;
-
-import static org.virtualrepository.Utils.*;
+import org.virtualrepository.sdmx.SdmxCodelist;
 
 /**
  * Place your class / interface description here.
@@ -68,6 +69,10 @@ public class Codelist {
 	
 	public CsvCodelist toCsvAsset() {
 		return new CsvCodelist(computeId(), computeName(), 0, properties.toArray());
+	}
+	
+	public SdmxCodelist toSdmxAsset() {
+		return new SdmxCodelist(id() + "-sdmx", computeId().replaceAll("\\-", "_"), "unknown", computeId().replaceAll("\\-", "_"), properties.toArray());
 	}
 
 	private String computeId() {
